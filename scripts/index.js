@@ -31,20 +31,29 @@ function copyRecursiveSync(src, dest) {
 
 // Replace placeholders inside files
 function replacePlaceholders(filePath, replacements) {
-  let content = fs.readFileSync(filePath, "utf8");
+    let content = fs.readFileSync(filePath, "utf8");
 
-  Object.keys(replacements).forEach((key) => {
-    const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
-    content = content.replace(regex, replacements[key]);
-  });
+    Object.keys(replacements).forEach((key) => {
+        const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+        content = content.replace(regex, replacements[key]);
+    });
 
-  fs.writeFileSync(filePath, content, "utf8");
+    fs.writeFileSync(filePath, content, "utf8");
 }
+const HERO_WORDS = ["Quick", "Fast", "Speedy"];
+let usedWords = [];
 function replaceHeroPlaceholders(filePath) {
     let content = fs.readFileSync(filePath, "utf8");
-    const HERO_WORDS = ["Quick", "Fast", "Speedy"];
-    const word = HERO_WORDS[Math.floor(Math.random() * HERO_WORDS.length)];
 
+    // Pick available words
+    let available = HERO_WORDS.filter(w => !usedWords.includes(w));
+    if (available.length === 0) {
+        usedWords = []; // reset if all used
+        available = [...HERO_WORDS];
+    }
+
+    const word = available[Math.floor(Math.random() * available.length)];
+    usedWords.push(word);
     content = content.replace(/\[\[\s*Quick\s*\|\s*Fast\s*\|\s*Speedy\s*\]\]/, word);
     fs.writeFileSync(filePath, content, "utf8");
     console.log(`  ✅ Hero text replaced with: ${word}`);
@@ -72,8 +81,11 @@ function processRow(row) {
                     address: row.address || "N/A",
                     email: row.email || "N/A",
                 });
+
+            }
+            let content = fs.readFileSync(filePath, "utf8");
+            if (/\[\[\s*Quick\s*\|\s*Fast\s*\|\s*Speedy\s*\]\]/.test(content)) {
                 replaceHeroPlaceholders(filePath);
-                console.log(`  ✅ Placeholders replaced in: ${file}`);
             }
         });
     }
