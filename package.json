@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/index.js"
+  },
+  "dependencies": {
+    "csv-parser": "^3.2.0"
+  }
+}
